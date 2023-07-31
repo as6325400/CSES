@@ -1,2 +1,4 @@
-./Geometry/draw.py
-./.vscode/
+Geometry/draw.py
+.vscode/
+*.exe
+*.out
