@@ -38,6 +38,10 @@
 //   cout << dis[c];
 // }
 
+
+
+
+
 // DP
 
 #include <bits/stdc++.h>
@@ -45,7 +49,7 @@
 
 using namespace std;
 
-int d1[200005], d2[200005], ans;
+int d1[300005], d2[300005], ans;
 
 void dfs(int now, int fa, vector<vector<int>> &graph){
   for(auto i: graph[now]){
