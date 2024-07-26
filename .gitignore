@@ -2,3 +2,8 @@ Geometry/draw.py
 .vscode/
 *.exe
 *.out
+
+# 忽略所有無副檔名的檔案
+*
+!*/
+!*.*
