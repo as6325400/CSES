@@ -91,10 +91,10 @@ signed main()
   for(int i = 1; i <= m; i++){
     add_edge(n + i, n + m + 1, 1);
   }
-  cout << maxflow(0, n + m + 1, 1e9) << '\n';
+  cout << maxflow(0, n + m + 1, n + m + 1) << '\n';
   for(int i = 1; i <= n; i++){
     for(auto &e : graph[i]){
-      if(e.capicity != 0 && e.next != 0){
+      if(e.capicity == 0 && e.next != 0){
         cout << i << ' ' << e.next - n << '\n';
         break;
       }
