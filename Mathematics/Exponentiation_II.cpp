@@ -27,6 +27,6 @@ signed main()
   for(int i = 0; i < n; i++){
     int a, b, c;
     cin >> a >> b >> c;
-    cout << fast_pow(a, fast_pow(b, c, mod), mod) << '\n';
+    cout << fast_pow(a, fast_pow(b, c, mod - 1), mod) << '\n';
   }
 }
