@@ -115,6 +115,11 @@
     "__tree": "cpp",
     "__verbose_abort": "cpp",
     "execution": "cpp",
-    "string_view": "cpp"
+    "string_view": "cpp",
+    "rope": "cpp",
+    "slist": "cpp",
+    "generator": "cpp",
+    "stacktrace": "cpp",
+    "text_encoding": "cpp"
   }
 }
