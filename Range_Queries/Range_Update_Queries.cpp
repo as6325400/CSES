@@ -4,84 +4,90 @@
 using namespace std;
 
 
+// 要改最大或者最小值線段樹需改 build 跟 queryRange
 template<typename T>
-class segment_tree
-{
-    private:
-        
-    public:
-        template<typename F>
-        class node{
-            public:
-            int lb, rb;
-            F num, tag;
-            node<F> *left, *right;
-            node(){
-                tag = 0;
-                right = nullptr, left = nullptr;
-            }
-            T rv(){
-                return num + tag * (rb - lb + 1);
-            }
-            void pull(){
-                if(left) left -> tag += tag;
-                if(right) right -> tag += tag;
-                num = rv();
-                tag = 0;
-            }
-        };
-        node<T> *root;
-        node<T> *build(vector<T> &save, int l, int r){
-            node<T> *temp = new node<T>; 
-            temp -> lb = l;
-            temp -> rb = r;
-            if (l == r)
-            {   
-                temp -> num = save[l];
-                return temp;
-            }
-            int mid = (l + r) / 2;
-            temp -> left = build(save, l, mid);
-            temp -> right = build(save, mid  + 1, r);
-            node<T> *left_node, *right_node;
-            left_node = temp -> left;
-            right_node = temp -> right;
-            temp -> num = left_node -> num + right_node -> num;
-            return temp;
-        }
-        T query(int l, int r, node<T> *t){
-            t -> pull();
-            if(l == t -> lb and r == t -> rb)
-                return t -> num;
-            int mid = (t -> lb + t -> rb) / 2;
-            if(r <= mid) return query(l, r, t -> left);
-            else if(l > mid) return query(l, r, t -> right);
-            else return query(l, mid, t -> left) + query(mid + 1, r, t -> right);
-        }
-        void modify_node(int index, T delta, node<T> *t){
-            if(t -> lb == t -> rb){
-                t -> num += delta;
-                return;
-            }
-            int mid = (t -> lb + t -> rb) / 2;
-            if(index > mid) modify_node(index, delta, t -> right);
-            else modify_node(index, delta, t -> left);
-            t -> num += delta;
-        }
-        void modify_scope(int lb, int rb, int delta, node<T> *t){
-            if(t -> lb >= lb and t -> rb <= rb){
-                t -> tag += delta;
-                return;
-            }
-            int mid = (t -> lb + t -> rb) / 2;
-            if(t -> left and rb <= mid) modify_scope(lb, rb, delta, t -> left);
-            else if(t -> right and lb > mid) modify_scope(lb, rb, delta, t -> right);
-            else{
-                modify_scope(lb, mid, delta, t -> left);
-                modify_scope(mid + 1, rb, delta, t -> right);
-            }
-            if(t -> left and t -> right) t -> num = t -> left -> rv() + t -> right -> rv();
-        }
+class segment_tree {
+private:
+  vector<T> tree, lazy;
+  int size;
+  void build(vector<T> &save, int node, int start, int end) {
+    if (start == end) tree[node] = save[start];
+    else {
+      int mid = (start + end) / 2;
+      build(save, 2 * node, start, mid);
+      build(save, 2 * node + 1, mid + 1, end);
+      tree[node] = tree[2 * node] + tree[2 * node + 1];
+    }
+  }
+  void updateRange(int node, int start, int end, int l, int r, T delta) {
+    if (lazy[node] != 0) {
+      tree[node] += (end - start + 1) * lazy[node];
+      if (start != end) {
+        lazy[2 * node] += lazy[node];
+        lazy[2 * node + 1] += lazy[node];
+      }
+      lazy[node] = 0;
+    }
+    if (start > end or start > r or end < l) return;
+    if (start >= l and end <= r) {
+      tree[node] += (end - start + 1) * delta;
+      if (start != end) {
+        lazy[2 * node] += delta;
+        lazy[2 * node + 1] += delta;
+      }
+      return;
+    }
+    int mid = (start + end) / 2;
+    updateRange(2 * node, start, mid, l, r, delta);
+    updateRange(2 * node + 1, mid + 1, end, l, r, delta);
+    tree[node] = tree[2 * node] + tree[2 * node + 1];
+  }
+  T queryRange(int node, int start, int end, int l, int r) {
+    if (lazy[node] != 0) {
+      tree[node] += (end - start + 1) * lazy[node];
+      if (start != end) {
+        lazy[2 * node] += lazy[node];
+        lazy[2 * node + 1] += lazy[node];
+      }
+      lazy[node] = 0;
+    }
+    if (start > end or start > r or end < l){
+      // return numeric_limits<T>::max(); // 找區間最小值用這行
+      // return numeric_limits<T>::min(); // 找區間最大值用這行
+      return 0; // 區間和
+    }
+    if (start >= l and end <= r) return tree[node];
+    int mid = (start + end) / 2;
+    T p1 = queryRange(2 * node, start, mid, l, r);
+    T p2 = queryRange(2 * node + 1, mid + 1, end, l, r);
+    return p1 + p2;
+  }
+  void updateNode(int node, int start, int end, int idx, T delta) {
+    if (start == end) tree[node] += delta;
+    else {
+      int mid = (start + end) / 2;
+      if (start <= idx and idx <= mid) updateNode(2 * node, start, mid, idx, delta);
+      else updateNode(2 * node + 1, mid + 1, end, idx, delta);
+      tree[node] = tree[2 * node] + tree[2 * node + 1];
+    }
+  }
+
+public:
+  void build(vector<T> &save, int l, int r) {
+    int n = size = save.size();
+    tree.resize(4 * n);
+    lazy.resize(4 * n);
+    build(save, 1, l, r);
+  }
+  void modify_scope(int l, int r, T delta) {
+    updateRange(1, 0, size - 1, l, r, delta);
+  }
+  void modify_node(int idx, T delta) {
+    updateNode(1, 0, size - 1, idx, delta);
+  }
+  T query(int l, int r) {
+    return queryRange(1, 0, size - 1, l, r);
+  }
 };
 
 signed main()
@@ -90,24 +96,27 @@ signed main()
   cin.tie(nullptr);
   int n, q;
   cin >> n >> q;
-  vector<int> save(n + 1, 0);
-  for(int i = 1; i <= n; i++){
+  vector<int> save(n, 0);
+  for(int i = 0; i < n; i++){
     cin >> save[i];
   }
   segment_tree<int> s;
-  s.root = s.build(save, 1, n);
+  s.build(save, 0, n - 1);
   for(int i = 0; i < q; i++){
     int m, a, b;
     cin >> m;
     if(m == 1){
       int a, b, c;
       cin >> a >> b >> c;
-      s.modify_scope(a, b, c, s.root);
+      a--;
+      b--;
+      s.modify_scope(a, b, c);
     }
     else{
       int index;
       cin >> index;
-      cout << s.query(index, index, s.root) << '\n';
+      index--;
+      cout << s.query(index, index) << '\n';
     }
   }
 }
