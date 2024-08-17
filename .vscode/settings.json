@@ -120,6 +120,11 @@
     "slist": "cpp",
     "generator": "cpp",
     "stacktrace": "cpp",
-    "text_encoding": "cpp"
+    "text_encoding": "cpp",
+    "print": "cpp",
+    "*.tcc": "cpp",
+    "expected": "cpp",
+    "spanstream": "cpp",
+    "stdfloat": "cpp"
   }
 }
