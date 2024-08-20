@@ -7,46 +7,34 @@ signed main()
 {
   ios_base::sync_with_stdio(false);
   cin.tie(nullptr);
-  int n, x, count = 0;
-  cin >> n >> x;
-
-  vector<int> save(n);
-  for(int i = 0; i < n; i++) cin >> save[i];
-  while(!save.empty()){
-    // cout << save.size() << '\n';
-    vector<int> visit_ans;
-    int p = pow(2, save.size()), ans = -1e9;
-    // cout << p << '\n';
-    for(int i = 0; i < p; i++){
-      vector<int> visit(save.size());
-      int index = 0, sum = 0, num = i;
-      while(num != 0){
-        visit[index] = num % 2;
-        num /= 2;
-        index++;
+  int n, k;
+  cin >> n >> k;
+  vector<int> arr(n);
+  vector<int> dp((1 << n) + 1), last((1 << n) + 1);
+  dp[0] = 1;
+  for(int i = 0; i < n; i++) cin >> arr[i];
+  for(int i = 1; i < (1 << n); i++){
+    // 1011
+    // 1010 1001 0011
+    dp[i] = 1e15;
+    last[i] = 1e15;
+    for(int j = 0; j < n; j++){
+      // 若第 j 位為 0 跳過
+      if(!(i & (1 << j))) continue;
+      int last_e = last[i & ~(1 << j)] + arr[j];
+      if(last_e < last[i] and last_e <= k and dp[i & ~(1 << j)] <= dp[i]){
+        dp[i] = dp[i & ~(1 << j)];
+        last[i] = last_e;
       }
-      for(int j = 0; j < visit.size(); j++){
-        if(visit[j]) sum += save[j];
+      else if(last_e > k and dp[i & ~(1 << j)] < dp[i]){
+        dp[i] = dp[i & ~(1 << j)] + 1;
+        last[i] = arr[j];
       }
-      if(sum > ans and sum <= x){
-        cout << "round " << count << ' ' <<"sum " << sum << ' ' << i << '\n';
-        visit_ans = visit;
-        ans = sum;
+      else if(last_e > last[i] and dp[i & ~(1 << j)] < dp[i]){
+        dp[i] = dp[i & ~(1 << j)];
+        last[i] = last_e;
       }
-    }
-    vector<int> temp;
-    for(int i = 0; i < visit_ans.size(); i++){
-      if(!visit_ans[i]) temp.push_back(save[i]);
-      else cout << save[i] << ' ';
-    }
-    cout << '\n';
-    save = temp;
-    count++;
-    if(save.size() == 0) break;
-    if(accumulate(save.begin(), save.end(), (int)0) <= x){
-      count++;
-      break;
     }
   }
-  cout << count;
+  cout << dp[(1 << n) - 1] << '\n';
 }
