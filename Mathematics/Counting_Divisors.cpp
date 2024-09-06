@@ -3,17 +3,21 @@
 
 using namespace std;
 
+vector<int> prime_table(int n){
+  vector<int> table(n + 1, 0);
+  for(int i = 1; i <= n; i++){
+    for(int j = i; j <= n; j += i){
+      table[j]++;
+    }
+  }
+  return table;
+}
 
 signed main()
 {
   ios_base::sync_with_stdio(false);
   cin.tie(nullptr);
-  vector<int> table(1e6 + 5, 0);
-  for(int i = 1; i <= 1e6; i++){
-    for(int j = i; j <= 1e6; j += i){
-      table[j]++;
-    }
-  }
+  auto table = prime_table(1e6 + 5);
   int n;
   cin >> n;
   for(int i = 0; i < n; i++){
