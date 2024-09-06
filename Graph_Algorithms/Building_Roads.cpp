@@ -20,13 +20,6 @@ class dsu{
     void Union(int a, int b){
       parent[find(a)] = find(b);
     }
-    int parent_num(int s, int e){
-      map<int, int> count;
-      for(int i = s; i <= e; i++){
-        count[find(i)]++;
-      }
-      return count.size();
-    }
 };
 
 signed main()
