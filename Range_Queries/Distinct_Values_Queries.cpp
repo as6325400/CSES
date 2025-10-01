@@ -59,7 +59,7 @@ signed main()
   for(int i = 0; i < q; i++){
     int l, r;
     cin >> l >> r;
-    vec[i] = {l / k, r, l, i};
+    vec[i] = {(l + 1) / k, r, l, i};
   }
 
   sort(vec.begin(), vec.end());
